@@ -22,10 +22,13 @@ export default {
   },
   async mounted() {
     await this.bimface.loadModel({
-      viewToken: "f854308b4b1540f3b2be96337a372544",
+      viewToken: "fa6a66d34814408d91b965652793826f",
       url:
         "https://static.bimface.com/api/BimfaceSDKLoader/BimfaceSDKLoader@latest-release.js",
-      domId: "bim"
+      domId: "bim",
+      viewConfig: {
+        enableHover: true
+      }
     });
     // eslint-disable-next-line no-console
     console.log("finish");
