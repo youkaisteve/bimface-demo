@@ -2,14 +2,18 @@
   <div class="container">
     <div id="bim" class="left"></div>
     <div class="right">
-      <input type="button" v-on:click="getFloors" value="获取楼层" />
-      <input type="button" v-on:click="marker3D" value="3D锚点" />
+      <div class="right-top">
+        <input type="button" v-on:click="getFloors" value="获取楼层" />
+        <input type="button" v-on:click="marker3D" value="3D锚点" />
+        <input type="button" v-on:click="getViewPoint" value="获取视点" />
+        <input type="button" v-if="viewPoint" v-on:click="setViewPoint" value="设置视点" />
+      </div>
+      <div class="right-bottom" ref="rb"></div>
     </div>
   </div>
 </template>
 
 <script>
-/* eslint-disable no-console */
 import getProvider, { ProviderType } from "bim-operator";
 
 export default {
@@ -17,12 +21,17 @@ export default {
   props: {
     msg: String
   },
+  data() {
+    return {
+      viewPoint: null
+    };
+  },
   created() {
     this.bimface = getProvider(ProviderType.BIMFACE);
   },
   async mounted() {
     await this.bimface.loadModel({
-      viewToken: "fa6a66d34814408d91b965652793826f",
+      viewToken: "0bbd210fca5c442eab345924d244d650",
       url:
         "https://static.bimface.com/api/BimfaceSDKLoader/BimfaceSDKLoader@latest-release.js",
       domId: "bim",
@@ -30,7 +39,6 @@ export default {
         enableHover: true
       }
     });
-    // eslint-disable-next-line no-console
     console.log("finish");
   },
   methods: {
@@ -62,6 +70,17 @@ export default {
       };
       const id = this.bimface.add3dMarker(marker3D);
       console.log(`id is ${id}`);
+    },
+    async getViewPoint() {
+      this.viewPoint = await this.bimface.getViewPoint();
+      var pic2 = new Image();
+      pic2.src = this.viewPoint.thumbnail;
+      pic2.height = 60;
+      pic2.width = 80;
+      this.$refs.rb.appendChild(pic2);
+    },
+    async setViewPoint() {
+      if (this.viewPoint) this.bimface.setViewPoint(this.viewPoint);
     }
   }
 };
@@ -79,6 +98,15 @@ export default {
   }
   .right {
     flex: 1;
+    flex-direction: column;
+    justify-content: flex-start;
+    .right-top {
+      flex: 1;
+    }
+    .right-bottom {
+      flex: 1;
+      border: 1px solid;
+    }
   }
 }
 </style>
