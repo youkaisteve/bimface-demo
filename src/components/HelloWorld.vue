@@ -4,17 +4,29 @@
     <div class="right">
       <div class="right-top">
         <input type="button" v-on:click="getFloors" value="获取楼层" />
+        <input type="button" v-on:click="clearIsolation" value="清除隔离" />
         <input type="button" v-on:click="marker3D" value="3D锚点" />
+        <input type="button" v-on:click="clearMarker3D" value="清空锚点" />
         <input type="button" v-on:click="getViewPoint" value="获取视点" />
         <input type="button" v-if="viewPoint" v-on:click="setViewPoint" value="设置视点" />
       </div>
-      <div class="right-bottom" ref="rb"></div>
+      <div class="right-bottom">
+        <div ref="rb"></div>
+        <div>
+          <ul>
+            <li v-for="(floor,index) in floors" :key="index">
+              {{floor.name}} -
+              <input type="button" v-on:click="isolateFloor(floor)" value="隔离" />
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import getProvider, { ProviderType } from "bim-operator";
+import getProvider, { ProviderType, IsolateOption } from "bim-operator";
 
 export default {
   name: "HelloWorld",
@@ -23,7 +35,9 @@ export default {
   },
   data() {
     return {
-      viewPoint: null
+      fileId: 1828359996852192,
+      viewPoint: null,
+      floors: []
     };
   },
   created() {
@@ -31,7 +45,7 @@ export default {
   },
   async mounted() {
     await this.bimface.loadModel({
-      viewToken: "0bbd210fca5c442eab345924d244d650",
+      viewToken: "9afd2bb94e0041ed86007b8ee11f3f9d",
       url:
         "https://static.bimface.com/api/BimfaceSDKLoader/BimfaceSDKLoader@latest-release.js",
       domId: "bim",
@@ -39,17 +53,22 @@ export default {
         enableHover: true
       }
     });
-    console.log("finish");
   },
   methods: {
     async getFloors() {
-      const floors = await this.bimface.getFloors();
-      console.log(floors);
-      console.log(
-        await this.bimface.getComponentByCondition({
-          fileId: 1771874174404448,
-          floor: floors[0].name
-        })
+      this.floors = await this.bimface.getFloors();
+    },
+    clearIsolation() {
+      this.bimface.clearIsolation();
+    },
+    async isolateFloor(floor) {
+      this.bimface.isolateComponentByCondition(
+        [
+          {
+            levelName: floor.name
+          }
+        ],
+        IsolateOption.HideOthers
       );
     },
     async marker3D() {
@@ -68,19 +87,26 @@ export default {
           console.log(item);
         }
       };
-      const id = this.bimface.add3dMarker(marker3D);
-      console.log(`id is ${id}`);
+      this.bimface.add3dMarker(marker3D);
+    },
+    clearMarker3D() {
+      this.bimface.clear3dMarker();
     },
     async getViewPoint() {
-      this.viewPoint = await this.bimface.getViewPoint();
+      const self = this;
+      const viewPoint = await this.bimface.getViewPoint();
       var pic2 = new Image();
-      pic2.src = this.viewPoint.thumbnail;
+      pic2.src = viewPoint.thumbnail;
       pic2.height = 60;
       pic2.width = 80;
+      pic2.onclick = function() {
+        // pic2.remove();
+        self.setViewPoint(viewPoint);
+      };
       this.$refs.rb.appendChild(pic2);
     },
-    async setViewPoint() {
-      if (this.viewPoint) this.bimface.setViewPoint(this.viewPoint);
+    async setViewPoint(viewPoint) {
+      if (viewPoint) this.bimface.setViewPoint(viewPoint);
     }
   }
 };
