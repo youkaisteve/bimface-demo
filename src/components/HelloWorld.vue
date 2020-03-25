@@ -17,6 +17,7 @@
             <li v-for="(floor,index) in floors" :key="index">
               {{floor.name}} -
               <input type="button" v-on:click="isolateFloor(floor)" value="隔离" />
+              <input type="button" v-on:click="blink(floor)" value="闪烁构件" />
             </li>
           </ul>
         </div>
@@ -35,7 +36,7 @@ export default {
   },
   data() {
     return {
-      fileId: 1828359996852192,
+      fileId: 1826280869775328,
       viewPoint: null,
       floors: []
     };
@@ -45,7 +46,7 @@ export default {
   },
   async mounted() {
     await this.bimface.loadModel({
-      viewToken: "9afd2bb94e0041ed86007b8ee11f3f9d",
+      viewToken: "1a63b5756aec44c096f742e24ed7ba37",
       url:
         "https://static.bimface.com/api/BimfaceSDKLoader/BimfaceSDKLoader@latest-release.js",
       domId: "bim",
@@ -94,7 +95,10 @@ export default {
     },
     async getViewPoint() {
       const self = this;
-      const viewPoint = await this.bimface.getViewPoint();
+      const viewPoint = await this.bimface.getViewPoint({
+        color: "#EE799F",
+        opacity: 1
+      });
       var pic2 = new Image();
       pic2.src = viewPoint.thumbnail;
       pic2.height = 60;
@@ -107,6 +111,24 @@ export default {
     },
     async setViewPoint(viewPoint) {
       if (viewPoint) this.bimface.setViewPoint(viewPoint);
+    },
+    async blink(floor) {
+      // highlightComponents
+      this.bimface.clearAllHighlightComponents();
+      const components = await this.bimface.getComponentByCondition(
+        this.fileId,
+        [
+          {
+            levelName: floor.name
+          }
+        ]
+      );
+      console.log(`${floor.name}-${components}`);
+      this.bimface.highlightComponents(components, {
+        color: "#FF0000",
+        opacity: 0.5,
+        intervalTime: 500
+      });
     }
   }
 };
