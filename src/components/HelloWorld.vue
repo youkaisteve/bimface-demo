@@ -30,6 +30,7 @@
               {{floor.name}} -
               <input type="button" v-on:click="isolateFloor(floor)" value="隔离" />
               <input type="button" v-on:click="blink(floor)" value="闪烁构件" />
+              <input type="button" v-on:click="cancelBlink(floor)" value="取消闪烁构件" />
             </li>
           </ul>
         </div>
@@ -152,6 +153,17 @@ export default {
           opacity: 0.5,
           intervalTime: 500
         }
+      );
+      this.bim3DModel.clearSelectedComponents();
+    },
+    async cancelBlink(floor) {
+      this.bim3DModel.selectComponentsByCondition([
+        {
+          levelName: floor.name
+        }
+      ]);
+      this.bim3DModel.clearHighlightComponents(
+        this.bim3DModel.getSelectedComponents()
       );
       this.bim3DModel.clearSelectedComponents();
     },
