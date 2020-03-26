@@ -46,7 +46,7 @@ export default {
   },
   async mounted() {
     await this.bimface.loadModel({
-      viewToken: "1a63b5756aec44c096f742e24ed7ba37",
+      viewToken: "165a46bfb3194c3f839b0f16046e5cef",
       url:
         "https://static.bimface.com/api/BimfaceSDKLoader/BimfaceSDKLoader@latest-release.js",
       domId: "bim",
@@ -114,21 +114,18 @@ export default {
     },
     async blink(floor) {
       // highlightComponents
-      this.bimface.clearAllHighlightComponents();
-      const components = await this.bimface.getComponentByCondition(
-        this.fileId,
-        [
-          {
-            levelName: floor.name
-          }
-        ]
-      );
-      console.log(`${floor.name}-${components}`);
-      this.bimface.highlightComponents(components, {
+      this.bimface.clearHighlightComponents();
+      this.bimface.selectComponentsByCondition([
+        {
+          levelName: floor.name
+        }
+      ]);
+      this.bimface.highlightComponents(this.bimface.getSelectedComponents(), {
         color: "#FF0000",
         opacity: 0.5,
         intervalTime: 500
       });
+      this.bimface.clearSelectedComponents();
     }
   }
 };
