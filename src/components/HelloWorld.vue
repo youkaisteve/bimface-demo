@@ -42,28 +42,31 @@ export default {
     };
   },
   created() {
-    this.bimface = getProvider(ProviderType.BIMFACE);
+    const provider = getProvider(ProviderType.BIMFACE);
+    // 获取3D模型操作对象
+    this.bim3DModel = provider.bim3DModel;
   },
   async mounted() {
-    await this.bimface.loadModel({
+    await this.bim3DModel.loadModel({
       viewToken: "165a46bfb3194c3f839b0f16046e5cef",
       url:
         "https://static.bimface.com/api/BimfaceSDKLoader/BimfaceSDKLoader@latest-release.js",
       domId: "bim",
       viewConfig: {
-        enableHover: true
+        enableHover: true,
+        enableToggleContextMenuDisplay: true
       }
     });
   },
   methods: {
     async getFloors() {
-      this.floors = await this.bimface.getFloors();
+      this.floors = await this.bim3DModel.getFloors();
     },
     clearIsolation() {
-      this.bimface.clearIsolation();
+      this.bim3DModel.clearIsolation();
     },
     async isolateFloor(floor) {
-      this.bimface.isolateComponentByCondition(
+      this.bim3DModel.isolateComponentByCondition(
         [
           {
             levelName: floor.name
@@ -88,14 +91,14 @@ export default {
           console.log(item);
         }
       };
-      this.bimface.add3dMarker(marker3D);
+      this.bim3DModel.marker.add3dMarker(marker3D);
     },
     clearMarker3D() {
-      this.bimface.clear3dMarker();
+      this.bim3DModel.marker.clear3dMarker();
     },
     async getViewPoint() {
       const self = this;
-      const viewPoint = await this.bimface.getViewPoint({
+      const viewPoint = await this.bim3DModel.getViewPoint({
         color: "#EE799F",
         opacity: 1
       });
@@ -110,22 +113,25 @@ export default {
       this.$refs.rb.appendChild(pic2);
     },
     async setViewPoint(viewPoint) {
-      if (viewPoint) this.bimface.setViewPoint(viewPoint);
+      if (viewPoint) this.bim3DModel.setViewPoint(viewPoint);
     },
     async blink(floor) {
       // highlightComponents
-      this.bimface.clearHighlightComponents();
-      this.bimface.selectComponentsByCondition([
+      this.bim3DModel.clearHighlightComponents();
+      this.bim3DModel.selectComponentsByCondition([
         {
           levelName: floor.name
         }
       ]);
-      this.bimface.highlightComponents(this.bimface.getSelectedComponents(), {
-        color: "#FF0000",
-        opacity: 0.5,
-        intervalTime: 500
-      });
-      this.bimface.clearSelectedComponents();
+      this.bim3DModel.highlightComponents(
+        this.bim3DModel.getSelectedComponents(),
+        {
+          color: "#FF0000",
+          opacity: 0.5,
+          intervalTime: 500
+        }
+      );
+      this.bim3DModel.clearSelectedComponents();
     }
   }
 };
