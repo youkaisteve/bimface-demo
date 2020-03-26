@@ -3,12 +3,24 @@
     <div id="bim" class="left"></div>
     <div class="right">
       <div class="right-top">
-        <input type="button" v-on:click="getFloors" value="获取楼层" />
-        <input type="button" v-on:click="clearIsolation" value="清除隔离" />
-        <input type="button" v-on:click="marker3D" value="3D锚点" />
-        <input type="button" v-on:click="clearMarker3D" value="清空锚点" />
-        <input type="button" v-on:click="getViewPoint" value="获取视点" />
-        <input type="button" v-if="viewPoint" v-on:click="setViewPoint" value="设置视点" />
+        <div>
+          <input type="button" v-on:click="load3D" value="3D模型" />
+          <input type="button" v-on:click="load2D" value="2D图纸" />
+        </div>
+        <div v-if="mode === '3D'">
+          <input type="button" v-on:click="getFloors" value="获取楼层" />
+          <input type="button" v-on:click="clearIsolation" value="清除隔离" />
+          <input type="button" v-on:click="marker3D" value="3D锚点" />
+          <input type="button" v-on:click="clearMarker3D" value="清空锚点" />
+          <input type="button" v-on:click="getViewPoint" value="获取视点" />
+          <input type="button" v-if="viewPoint" v-on:click="setViewPoint" value="设置视点" />
+        </div>
+        <div v-if="mode==='2D'">
+          <input type="button" v-on:click="setDisplayMode(1)" value="白底模式" />
+          <input type="button" v-on:click="setDisplayMode(2)" value="黑白模式" />
+          <input type="button" v-on:click="setDisplayMode(0)" value="普通模式" />
+          <input type="button" v-on:click="setDisplayMode(3)" value="自定义模式" />
+        </div>
       </div>
       <div class="right-bottom">
         <div ref="rb"></div>
@@ -36,7 +48,7 @@ export default {
   },
   data() {
     return {
-      fileId: 1826280869775328,
+      mode: "3D",
       viewPoint: null,
       floors: []
     };
@@ -45,20 +57,31 @@ export default {
     const provider = getProvider(ProviderType.BIMFACE);
     // 获取3D模型操作对象
     this.bim3DModel = provider.bim3DModel;
+    // 获取3D模型操作对象
+    this.bimDrawing = provider.bimDrawing;
   },
   async mounted() {
-    await this.bim3DModel.loadModel({
-      viewToken: "165a46bfb3194c3f839b0f16046e5cef",
-      url:
-        "https://static.bimface.com/api/BimfaceSDKLoader/BimfaceSDKLoader@latest-release.js",
-      domId: "bim",
-      viewConfig: {
-        enableHover: true,
-        enableToggleContextMenuDisplay: true
-      }
-    });
+    this.load3D();
   },
   methods: {
+    async load3D() {
+      this.mode = "3D";
+      await this.bim3DModel.loadModel({
+        viewToken: "165a46bfb3194c3f839b0f16046e5cef",
+        domId: "bim",
+        viewConfig: {
+          enableHover: true,
+          enableToggleContextMenuDisplay: true
+        }
+      });
+    },
+    async load2D() {
+      this.mode = "2D";
+      await this.bimDrawing.load({
+        viewToken: "d131fd88cd8c4bbd86f836d1238ba2b8",
+        domId: "bim"
+      });
+    },
     async getFloors() {
       this.floors = await this.bim3DModel.getFloors();
     },
@@ -80,7 +103,6 @@ export default {
         id: 99,
         src:
           "http://static.bimface.com/resources/3DMarker/warner/warner_red.png",
-        // size: 100,
         worldPosition: {
           x: -9752.023568420416,
           y: -929.6956396779448,
@@ -132,6 +154,16 @@ export default {
         }
       );
       this.bim3DModel.clearSelectedComponents();
+    },
+    setDisplayMode(mode) {
+      if (mode === 3) {
+        this.bimDrawing.setDisplayMode(mode, {
+          color: "#FF0000",
+          opacity: 0.7
+        });
+      } else {
+        this.bimDrawing.setDisplayMode(mode);
+      }
     }
   }
 };
