@@ -69,7 +69,7 @@ export default {
     async load3D() {
       this.mode = "3D";
       await this.bim3DModel.load({
-        viewToken: "3b560ac4d3034b1fbca955948f008f89",
+        viewToken: "d5f2deb64dbb417084e41a5bc13b094e",
         domId: "bim",
         appConfig: {
           Buttons: ["Section"]
@@ -156,7 +156,6 @@ export default {
       }
 
       const floorIds = this.floors.map(x => x.id);
-      console.log(floorIds);
       this.bim3DModel.explosionFloor(floorIds, 3);
     },
     async blink(floor) {
