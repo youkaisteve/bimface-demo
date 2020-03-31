@@ -14,6 +14,7 @@
           <input type="button" v-on:click="clearMarker3D" value="清空锚点" />
           <input type="button" v-on:click="getViewPoint" value="获取视点" />
           <input type="button" v-if="viewPoint" v-on:click="setViewPoint" value="设置视点" />
+          <input type="button" v-on:click="explosionFloor" value="楼层爆炸" />
         </div>
         <div v-if="mode==='2D'">
           <input type="button" v-on:click="setDisplayMode(1)" value="白底模式" />
@@ -67,14 +68,25 @@ export default {
   methods: {
     async load3D() {
       this.mode = "3D";
-      await this.bim3DModel.loadModel({
-        viewToken: "165a46bfb3194c3f839b0f16046e5cef",
+      await this.bim3DModel.load({
+        viewToken: "3b560ac4d3034b1fbca955948f008f89",
         domId: "bim",
+        appConfig: {
+          Buttons: ["Section"]
+        },
         viewConfig: {
           enableHover: true,
-          enableToggleContextMenuDisplay: true
+          enableToggleContextMenuDisplay: true,
+          enableExplosion: true
         }
       });
+      this.bim3DModel.addCustomButtons([
+        {
+          html:
+            '<button style="width: 50px; height:50px; left: -8px; top: -8px; position: relative; color: white; font-size: 18px;background: rgba(0, 0, 0, 0);opacity: 0.6;border: none;">别闪</button>',
+          clickEvent: this.cancelBlink
+        }
+      ]);
     },
     async load2D() {
       this.mode = "2D";
@@ -137,6 +149,15 @@ export default {
     },
     async setViewPoint(viewPoint) {
       if (viewPoint) this.bim3DModel.setViewPoint(viewPoint);
+    },
+    async explosionFloor() {
+      if (this.floors.length === 0) {
+        await this.getFloors();
+      }
+
+      const floorIds = this.floors.map(x => x.id);
+      console.log(floorIds);
+      this.bim3DModel.explosionFloor(floorIds, 3);
     },
     async blink(floor) {
       // highlightComponents
