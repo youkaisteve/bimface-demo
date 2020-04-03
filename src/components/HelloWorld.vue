@@ -41,65 +41,65 @@
 </template>
 
 <script>
-import getProvider, { ProviderType, IsolateOption } from "bim-operator";
+import getProvider, { ProviderType, IsolateOption } from 'bim-operator'
 
 export default {
-  name: "HelloWorld",
+  name: 'HelloWorld',
   props: {
     msg: String
   },
   data() {
     return {
-      mode: "3D",
+      mode: '3D',
       viewPoint: null,
       floors: []
-    };
+    }
   },
   created() {
-    const provider = getProvider(ProviderType.BIMFACE);
+    const provider = getProvider(ProviderType.BIMFACE)
     // 获取3D模型操作对象
-    this.bim3DModel = provider.bim3DModel;
+    this.bim3DModel = provider.bim3DModel
     // 获取3D模型操作对象
-    this.bimDrawing = provider.bimDrawing;
+    this.bimDrawing = provider.bimDrawing
   },
   async mounted() {
-    this.load3D();
+    this.load3D()
   },
   methods: {
     async load3D() {
-      this.mode = "3D";
+      this.mode = '3D'
       await this.bim3DModel.load({
-        viewToken: "d5f2deb64dbb417084e41a5bc13b094e",
-        domId: "bim",
+        viewToken: 'a2615a521d414e68a73d556f6ea28920',
+        domId: 'bim',
         appConfig: {
-          Buttons: ["Section"]
+          Buttons: ['Section']
         },
         viewConfig: {
           enableHover: true,
           enableToggleContextMenuDisplay: true,
           enableExplosion: true
         }
-      });
+      })
       this.bim3DModel.addCustomButtons([
         {
           html:
             '<button style="width: 50px; height:50px; left: -8px; top: -8px; position: relative; color: white; font-size: 18px;background: rgba(0, 0, 0, 0);opacity: 0.6;border: none;">别闪</button>',
           clickEvent: this.cancelBlink
         }
-      ]);
+      ])
     },
     async load2D() {
-      this.mode = "2D";
+      this.mode = '2D'
       await this.bimDrawing.load({
-        viewToken: "d131fd88cd8c4bbd86f836d1238ba2b8",
-        domId: "bim"
-      });
+        viewToken: 'd131fd88cd8c4bbd86f836d1238ba2b8',
+        domId: 'bim'
+      })
     },
     async getFloors() {
-      this.floors = await this.bim3DModel.getFloors();
+      this.floors = await this.bim3DModel.getFloors()
     },
     clearIsolation() {
-      this.bim3DModel.clearIsolation();
+      this.bim3DModel.clearIsolation()
     },
     async isolateFloor(floor) {
       this.bim3DModel.isolateComponentByCondition(
@@ -109,96 +109,96 @@ export default {
           }
         ],
         IsolateOption.HideOthers
-      );
+      )
     },
     async marker3D() {
       const marker3D = {
         id: 99,
         src:
-          "http://static.bimface.com/resources/3DMarker/warner/warner_red.png",
+          'http://static.bimface.com/resources/3DMarker/warner/warner_red.png',
         worldPosition: {
           x: -9752.023568420416,
           y: -929.6956396779448,
           z: 13348.985568386792
         },
-        tooltip: "这是撒大声地撒旦阿斯顿",
+        tooltip: '这是撒大声地撒旦阿斯顿',
         onClick: function(item) {
-          console.log(item);
+          console.log(item)
         }
-      };
-      this.bim3DModel.marker.add3dMarker(marker3D);
+      }
+      this.bim3DModel.marker.add3dMarker(marker3D)
     },
     clearMarker3D() {
-      this.bim3DModel.marker.clear3dMarker();
+      this.bim3DModel.marker.clear3dMarker()
     },
     async getViewPoint() {
-      const self = this;
+      const self = this
       const viewPoint = await this.bim3DModel.getViewPoint({
-        color: "#EE799F",
+        color: '#EE799F',
         opacity: 1
-      });
-      var pic2 = new Image();
-      pic2.src = viewPoint.thumbnail;
-      pic2.height = 60;
-      pic2.width = 80;
+      })
+      var pic2 = new Image()
+      pic2.src = viewPoint.thumbnail
+      pic2.height = 60
+      pic2.width = 80
       pic2.onclick = function() {
         // pic2.remove();
-        self.setViewPoint(viewPoint);
-      };
-      this.$refs.rb.appendChild(pic2);
+        self.setViewPoint(viewPoint)
+      }
+      this.$refs.rb.appendChild(pic2)
     },
     async setViewPoint(viewPoint) {
-      if (viewPoint) this.bim3DModel.setViewPoint(viewPoint);
+      if (viewPoint) this.bim3DModel.setViewPoint(viewPoint)
     },
     async explosionFloor() {
       if (this.floors.length === 0) {
-        await this.getFloors();
+        await this.getFloors()
       }
 
-      const floorIds = this.floors.map(x => x.id);
-      this.bim3DModel.explosionFloor(floorIds, 3);
+      const floorIds = this.floors.map(x => x.id)
+      this.bim3DModel.explosionFloor(floorIds, 3)
     },
     async blink(floor) {
       // highlightComponents
-      this.bim3DModel.clearHighlightComponents();
+      this.bim3DModel.clearHighlightComponents()
       this.bim3DModel.selectComponentsByCondition([
         {
           levelName: floor.name
         }
-      ]);
+      ])
       this.bim3DModel.highlightComponents(
         this.bim3DModel.getSelectedComponents(),
         {
-          color: "#FF0000",
+          color: '#FF0000',
           opacity: 0.5,
           intervalTime: 500
         }
-      );
-      this.bim3DModel.clearSelectedComponents();
+      )
+      this.bim3DModel.clearSelectedComponents()
     },
     async cancelBlink(floor) {
       this.bim3DModel.selectComponentsByCondition([
         {
           levelName: floor.name
         }
-      ]);
+      ])
       this.bim3DModel.clearHighlightComponents(
         this.bim3DModel.getSelectedComponents()
-      );
-      this.bim3DModel.clearSelectedComponents();
+      )
+      this.bim3DModel.clearSelectedComponents()
     },
     setDisplayMode(mode) {
       if (mode === 3) {
         this.bimDrawing.setDisplayMode(mode, {
-          color: "#FF0000",
+          color: '#FF0000',
           opacity: 0.7
-        });
+        })
       } else {
-        this.bimDrawing.setDisplayMode(mode);
+        this.bimDrawing.setDisplayMode(mode)
       }
     }
   }
-};
+}
 </script>
 
 <style scoped lang="less">
