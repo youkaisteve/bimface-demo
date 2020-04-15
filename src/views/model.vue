@@ -69,7 +69,7 @@ export default {
     async load3D() {
       this.mode = '3D'
       await this.bim3DModel.load({
-        viewToken: 'a2615a521d414e68a73d556f6ea28920',
+        viewToken: 'aa99a08147b14a959e33006b4331685c',
         domId: 'bim',
         appConfig: {
           Buttons: ['Section']
@@ -84,7 +84,7 @@ export default {
         {
           html:
             '<button style="width: 50px; height:50px; left: -8px; top: -8px; position: relative; color: white; font-size: 18px;background: rgba(0, 0, 0, 0);opacity: 0.6;border: none;">别闪</button>',
-          clickEvent: this.cancelBlink
+          clickEvent: this.explosionFloor
         }
       ])
     },
