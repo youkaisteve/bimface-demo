@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import getProvider, { ProviderType, IsolateOption } from 'bim-operator'
+import getProvider, { ProviderType, IsolateOption } from '@yzw/bim-operator'
 
 export default {
   name: 'HelloWorld',
@@ -71,6 +71,7 @@ export default {
       await this.bim3DModel.load({
         viewToken: 'aa99a08147b14a959e33006b4331685c',
         domId: 'bim',
+        unsafe: true,
         appConfig: {
           Buttons: ['Section']
         },
