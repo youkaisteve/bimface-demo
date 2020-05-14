@@ -69,7 +69,7 @@ export default {
     async load3D() {
       this.mode = '3D'
       await this.bim3DModel.load({
-        viewToken: 'aa99a08147b14a959e33006b4331685c',
+        viewToken: 'ce3490038cad4447922b68115e8a8128',
         domId: 'bim',
         unsafe: true,
         appConfig: {
@@ -92,7 +92,7 @@ export default {
     async load2D() {
       this.mode = '2D'
       await this.bimDrawing.load({
-        viewToken: 'd131fd88cd8c4bbd86f836d1238ba2b8',
+        viewToken: '352b7a5824e24fbeb66b5554cf043c56',
         domId: 'bim'
       })
     },
@@ -161,21 +161,20 @@ export default {
     },
     async blink(floor) {
       // highlightComponents
-      this.bim3DModel.clearHighlightComponents()
-      this.bim3DModel.selectComponentsByCondition([
-        {
-          levelName: floor.name
-        }
-      ])
-      this.bim3DModel.highlightComponents(
-        this.bim3DModel.getSelectedComponents(),
-        {
+      await this.bim3DModel.multi(async $ins => {
+        $ins.clearHighlightComponents()
+        $ins.selectComponentsByCondition([
+          {
+            levelName: floor.name
+          }
+        ])
+        $ins.highlightComponents($ins.getSelectedComponents(), {
           color: '#FF0000',
           opacity: 0.5,
           intervalTime: 500
-        }
-      )
-      this.bim3DModel.clearSelectedComponents()
+        })
+        $ins.clearSelectedComponents()
+      })
     },
     async cancelBlink(floor) {
       this.bim3DModel.selectComponentsByCondition([
