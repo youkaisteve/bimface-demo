@@ -69,12 +69,10 @@ export default {
     async load3D() {
       this.mode = '3D'
       await this.bim3DModel.load({
-        viewToken: 'ce3490038cad4447922b68115e8a8128',
+        viewToken: 'a1609f7910d8439081a659f041c6b0b9',
         domId: 'bim',
         unsafe: true,
-        appConfig: {
-          Buttons: ['Section']
-        },
+        appConfig: {},
         viewConfig: {
           enableHover: true,
           enableToggleContextMenuDisplay: true,
@@ -83,8 +81,8 @@ export default {
       })
       this.bim3DModel.addCustomButtons([
         {
-          html:
-            '<button style="width: 50px; height:50px; left: -8px; top: -8px; position: relative; color: white; font-size: 18px;background: rgba(0, 0, 0, 0);opacity: 0.6;border: none;">别闪</button>',
+          className: 'bf-button gld-bf-map',
+          toggleClassName: 'bf-button gld-bf-properties',
           clickEvent: this.explosionFloor
         }
       ])
