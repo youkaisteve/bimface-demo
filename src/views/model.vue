@@ -1,6 +1,10 @@
 <template>
   <div class="container">
-    <div id="bim" class="left"></div>
+    <div
+      id="bim"
+      class="left"
+      :style="{width:modelWidth === '100%' ? modelWidth : modelWidth + 'px'}"
+    ></div>
     <div class="right">
       <div class="right-top">
         <div>
@@ -8,6 +12,8 @@
           <input type="button" v-on:click="load2D" value="2D图纸" />
         </div>
         <div v-if="mode === '3D'">
+          <input type="button" v-on:click="changeWidth1" value="变宽" />
+          <input type="button" v-on:click="changeWidth2" value="变窄" />
           <input type="button" v-on:click="getFloors" value="获取楼层" />
           <input type="button" v-on:click="clearIsolation" value="清除隔离" />
           <input type="button" v-on:click="marker3D" value="3D锚点" />
@@ -52,11 +58,12 @@ export default {
     return {
       mode: '3D',
       viewPoint: null,
-      floors: []
+      floors: [],
+      modelWidth: 800
     }
   },
   created() {
-    const provider = getProvider(ProviderType.BIMFACE)
+    const provider = getProvider(ProviderType.BIMFACE, { debugOn: true })
     // 获取3D模型操作对象
     this.bim3DModel = provider.bim3DModel
     // 获取3D模型操作对象
@@ -69,7 +76,7 @@ export default {
     async load3D() {
       this.mode = '3D'
       await this.bim3DModel.load({
-        viewToken: 'a1609f7910d8439081a659f041c6b0b9',
+        viewToken: '1002cc76a8d443b898f3c00deafb59f7',
         domId: 'bim',
         unsafe: true,
         appConfig: {},
@@ -93,6 +100,15 @@ export default {
         viewToken: '352b7a5824e24fbeb66b5554cf043c56',
         domId: 'bim'
       })
+    },
+    changeWidth1() {
+      this.modelWidth = 1300
+      this.bim3DModel.resize(1300)
+    },
+    changeWidth2() {
+      this.modelWidth = 800
+      this.bim3DModel.resize(800)
+      this.bim3DModel.render()
     },
     async getFloors() {
       this.floors = await this.bim3DModel.getFloors()
@@ -206,7 +222,6 @@ export default {
   justify-content: flex-start;
 
   .left {
-    width: 1200px;
     height: 800px;
   }
   .right {
