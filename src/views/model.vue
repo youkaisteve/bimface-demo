@@ -3,7 +3,7 @@
     <div
       id="bim"
       class="left"
-      :style="{width:modelWidth === '100%' ? modelWidth : modelWidth + 'px'}"
+      :style="{ width: modelWidth === '100%' ? modelWidth : modelWidth + 'px' }"
     ></div>
     <div class="right">
       <div class="right-top">
@@ -19,25 +19,54 @@
           <input type="button" v-on:click="marker3D" value="3D锚点" />
           <input type="button" v-on:click="clearMarker3D" value="清空锚点" />
           <input type="button" v-on:click="getViewPoint" value="获取视点" />
-          <input type="button" v-if="viewPoint" v-on:click="setViewPoint" value="设置视点" />
+          <input
+            type="button"
+            v-if="viewPoint"
+            v-on:click="setViewPoint"
+            value="设置视点"
+          />
           <input type="button" v-on:click="explosionFloor" value="楼层爆炸" />
         </div>
-        <div v-if="mode==='2D'">
-          <input type="button" v-on:click="setDisplayMode(1)" value="白底模式" />
-          <input type="button" v-on:click="setDisplayMode(2)" value="黑白模式" />
-          <input type="button" v-on:click="setDisplayMode(0)" value="普通模式" />
-          <input type="button" v-on:click="setDisplayMode(3)" value="自定义模式" />
+        <div v-if="mode === '2D'">
+          <input
+            type="button"
+            v-on:click="setDisplayMode(1)"
+            value="白底模式"
+          />
+          <input
+            type="button"
+            v-on:click="setDisplayMode(2)"
+            value="黑白模式"
+          />
+          <input
+            type="button"
+            v-on:click="setDisplayMode(0)"
+            value="普通模式"
+          />
+          <input
+            type="button"
+            v-on:click="setDisplayMode(3)"
+            value="自定义模式"
+          />
         </div>
       </div>
       <div class="right-bottom">
         <div ref="rb"></div>
         <div>
           <ul>
-            <li v-for="(floor,index) in floors" :key="index">
-              {{floor.name}} -
-              <input type="button" v-on:click="isolateFloor(floor)" value="隔离" />
+            <li v-for="(floor, index) in floors" :key="index">
+              {{ floor.name }} -
+              <input
+                type="button"
+                v-on:click="isolateFloor(floor)"
+                value="隔离"
+              />
               <input type="button" v-on:click="blink(floor)" value="闪烁构件" />
-              <input type="button" v-on:click="cancelBlink(floor)" value="取消闪烁构件" />
+              <input
+                type="button"
+                v-on:click="cancelBlink(floor)"
+                value="取消闪烁构件"
+              />
             </li>
           </ul>
         </div>
@@ -47,27 +76,32 @@
 </template>
 
 <script>
-import getProvider, { ProviderType, IsolateOption } from '@yzw/bim-operator'
+import getProvider, {
+  ProviderType,
+  IsolateOption,
+  Bim3DEvent,
+} from '@yzw/bim-operator'
 
 export default {
   name: 'HelloWorld',
   props: {
-    msg: String
+    msg: String,
   },
   data() {
     return {
       mode: '3D',
       viewPoint: null,
       floors: [],
-      modelWidth: 800
+      modelWidth: 800,
     }
   },
   created() {
-    const provider = getProvider(ProviderType.BIMFACE, { debugOn: true })
+    this.provider = getProvider(ProviderType.BIMFACE, { debugOn: true })
+    console.log(this.provider.context)
     // 获取3D模型操作对象
-    this.bim3DModel = provider.bim3DModel
+    this.bim3DModel = this.provider.bim3DModel
     // 获取3D模型操作对象
-    this.bimDrawing = provider.bimDrawing
+    this.bimDrawing = this.provider.bimDrawing
   },
   async mounted() {
     this.load3D()
@@ -76,29 +110,56 @@ export default {
     async load3D() {
       this.mode = '3D'
       await this.bim3DModel.load({
-        viewToken: '1002cc76a8d443b898f3c00deafb59f7',
+        viewToken: '089bc175a46f4e22880fa4aaa02ae0ef',
         domId: 'bim',
         unsafe: true,
         appConfig: {},
         viewConfig: {
           enableHover: true,
           enableToggleContextMenuDisplay: true,
-          enableExplosion: true
-        }
+          enableExplosion: true,
+        },
       })
+      // DEMO:添加右键菜单
+      this.bim3DModel.contextMenu.add([
+        {
+          key: 'test',
+          text: '测试',
+        },
+        {
+          key: 'test-multi',
+          text: '测试-二级',
+          children: [
+            {
+              key: 'test-multi-1',
+              text: '测试-二级-1',
+            },
+          ],
+        },
+      ])
+
+      // 右键菜单点击事件
+      this.bim3DModel.addEventListener(Bim3DEvent.ContextMenu, () => {
+        this.bim3DModel.contextMenu.render()
+        this.bim3DModel.contextMenu.on('click', (menuItem) => {
+          // 这里的menuItem就是add方法中设置的，另外还有menu对应的dom的elementId，具体参考bim-operator文档
+          console.log(menuItem)
+        })
+      })
+
       this.bim3DModel.addCustomButtons([
         {
           className: 'bf-button gld-bf-map',
           toggleClassName: 'bf-button gld-bf-properties',
-          clickEvent: this.explosionFloor
-        }
+          clickEvent: this.explosionFloor,
+        },
       ])
     },
     async load2D() {
       this.mode = '2D'
       await this.bimDrawing.load({
         viewToken: '352b7a5824e24fbeb66b5554cf043c56',
-        domId: 'bim'
+        domId: 'bim',
       })
     },
     changeWidth1() {
@@ -120,8 +181,8 @@ export default {
       this.bim3DModel.isolateComponentByCondition(
         [
           {
-            levelName: floor.name
-          }
+            levelName: floor.name,
+          },
         ],
         IsolateOption.HideOthers
       )
@@ -134,12 +195,12 @@ export default {
         worldPosition: {
           x: -9752.023568420416,
           y: -929.6956396779448,
-          z: 13348.985568386792
+          z: 13348.985568386792,
         },
         tooltip: '这是撒大声地撒旦阿斯顿',
-        onClick: function(item) {
+        onClick: function (item) {
           console.log(item)
-        }
+        },
       }
       this.bim3DModel.marker.add3dMarker(marker3D)
     },
@@ -150,13 +211,13 @@ export default {
       const self = this
       const viewPoint = await this.bim3DModel.getViewPoint({
         color: '#EE799F',
-        opacity: 1
+        opacity: 1,
       })
       var pic2 = new Image()
       pic2.src = viewPoint.thumbnail
       pic2.height = 60
       pic2.width = 80
-      pic2.onclick = function() {
+      pic2.onclick = function () {
         // pic2.remove();
         self.setViewPoint(viewPoint)
       }
@@ -170,22 +231,22 @@ export default {
         await this.getFloors()
       }
 
-      const floorIds = this.floors.map(x => x.id)
+      const floorIds = this.floors.map((x) => x.id)
       this.bim3DModel.explosionFloor(floorIds, 3)
     },
     async blink(floor) {
       // highlightComponents
-      await this.bim3DModel.multi(async $ins => {
+      await this.bim3DModel.multi(async ($ins) => {
         $ins.clearHighlightComponents()
         $ins.selectComponentsByCondition([
           {
-            levelName: floor.name
-          }
+            levelName: floor.name,
+          },
         ])
         $ins.highlightComponents($ins.getSelectedComponents(), {
           color: '#FF0000',
           opacity: 0.5,
-          intervalTime: 500
+          intervalTime: 500,
         })
         $ins.clearSelectedComponents()
       })
@@ -193,8 +254,8 @@ export default {
     async cancelBlink(floor) {
       this.bim3DModel.selectComponentsByCondition([
         {
-          levelName: floor.name
-        }
+          levelName: floor.name,
+        },
       ])
       this.bim3DModel.clearHighlightComponents(
         this.bim3DModel.getSelectedComponents()
@@ -205,13 +266,13 @@ export default {
       if (mode === 3) {
         this.bimDrawing.setDisplayMode(mode, {
           color: '#FF0000',
-          opacity: 0.7
+          opacity: 0.7,
         })
       } else {
         this.bimDrawing.setDisplayMode(mode)
       }
-    }
-  }
+    },
+  },
 }
 </script>
 
